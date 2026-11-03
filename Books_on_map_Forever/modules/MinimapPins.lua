@@ -5,6 +5,7 @@ local BOOKS = ns.BOOKS
 
 ns.DEFAULT_MINIMAP_PIN_SIZE = 14
 local UPDATE_EVERY = 0.05 -- seconds
+local FULL_EVERY = 1 -- seconds: redraw anyway, for changes nothing reports (group, route)
 
 -- minimap diameter in yards for each zoom level
 local MINIMAP_YARDS = {
@@ -60,10 +61,9 @@ local function createPin()
   return p
 end
 
-function ns.RefreshMinimapPins()
+local function refresh(cont, px, py)
   if not ns.db then return end
   local n = 0
-  local cont, px, py = ns.PlayerWorldPos()
   if cont and not ns.db.hideMinimapPins and Minimap:IsVisible() then
     local yards = MINIMAP_YARDS[IsIndoors() and "indoor" or "outdoor"][Minimap:GetZoom()] or 466
     local radius = yards / 2
@@ -111,13 +111,30 @@ function ns.RefreshMinimapPins()
   for i = n + 1, #pins do pins[i]:Hide() end
 end
 
+function ns.RefreshMinimapPins()
+  refresh(ns.PlayerWorldPos())
+end
+
+-- The pins only move when the player moves or turns, or the minimap zooms or goes
+-- indoors, so the timer redraws them only then (and once every FULL_EVERY).
 function ns.InitMinimapPins()
-  local elapsed = 0
+  local elapsed, sinceFull = 0, 0
+  local lastCont, lastX, lastY, lastFacing, lastZoom, lastIndoors
   local driver = CreateFrame("Frame")
   driver:SetScript("OnUpdate", function(_, e)
     elapsed = elapsed + e
     if elapsed < UPDATE_EVERY then return end
+    sinceFull = sinceFull + elapsed
     elapsed = 0
-    ns.RefreshMinimapPins()
+    local cont, px, py = ns.PlayerWorldPos()
+    local facing = GetCVar("rotateMinimap") == "1" and GetPlayerFacing and GetPlayerFacing() or false
+    local zoom, indoors = Minimap:GetZoom(), IsIndoors()
+    if sinceFull < FULL_EVERY and cont == lastCont and px == lastX and py == lastY
+      and facing == lastFacing and zoom == lastZoom and indoors == lastIndoors then
+      return
+    end
+    sinceFull = 0
+    lastCont, lastX, lastY, lastFacing, lastZoom, lastIndoors = cont, px, py, facing, zoom, indoors
+    refresh(cont, px, py)
   end)
 end
