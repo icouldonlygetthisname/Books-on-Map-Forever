@@ -355,7 +355,7 @@ This repository is a fork of [EfkaBz/Books-on-Map-Forever](https://github.com/Ef
 
 | Fix | File | Details |
 |---|---|---|
-| Minimap pins redraw only on change | [`modules/MinimapPins.lua`](Books_on_map_Forever/modules/MinimapPins.lua) | Upstream recalculated every minimap pin 20 times a second, even while standing still. Now it still checks 20 times a second but only redraws when your position, facing, minimap zoom or indoor state changes, plus once a second for changes nothing reports (group needs, route steps). |
+| Minimap pins redraw only on change | [`modules/MinimapPins.lua`](Books_on_map_Forever/modules/MinimapPins.lua) | Upstream recalculated every minimap pin 20 times a second, even while standing still. Now it checks 5 times a second and only redraws when your position, facing, minimap zoom or indoor state changes, plus once a second for changes nothing reports (group needs, route steps). |
 
 ### Re-applying fixes after an upstream update
 
