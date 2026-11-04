@@ -4,7 +4,7 @@ local L = ns.L
 local BOOKS = ns.BOOKS
 
 ns.DEFAULT_MINIMAP_PIN_SIZE = 14
-local UPDATE_EVERY = 0.05 -- seconds
+local UPDATE_EVERY = 0.2 -- seconds
 local FULL_EVERY = 1 -- seconds: redraw anyway, for changes nothing reports (group, route)
 
 -- minimap diameter in yards for each zoom level
